@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Jasmine preload - Spec Runner</title>
+  <title>Jasmine preloading plugins - Spec Runner</title>
 
   <% css.forEach(function(style){ %>
   <link rel="stylesheet" type="text/css" href="<%= style %>">
@@ -61,7 +61,14 @@
             });
         }
     %>
-      require.config(<%= serializeRequireConfig(options.requireConfig) %>);
+      var configuration = <%= serializeRequireConfig(options.requireConfig) %>;
+      var req = require.config(configuration);
+console.log('\n----------------------------------------------------------------------------------');
+console.log(window.location.toString());
+console.log('----------------------------------------------------------------------------------\n');
+// console.log('the url is: ', req.toUrl('modulesLoader'));
+
+
     <% } %>
   var preLoad = [];
     function launchTest() {
@@ -69,12 +76,9 @@
           srcFiles,
           specFiles,
           helperJasmine;
-      console.dir( scripts.preloads);
-      preloadFiles = [
-      <% scripts.preloads.forEach(function(script, i){ %>
-          <% script = script.replace(/\\/g, '/') // replace all backward slashes to forward slash %>
-          '<%= script %>' <%= i < scripts.src.length-1 ? ',' : '' %>
-        <% }) %>
+
+     preloadFiles = [
+     '<%= [].concat(options.preloads).join("','") %>'
      ];
 
       srcFiles = [
@@ -84,17 +88,33 @@
         <% }) %>
       ];
 
+      var badPrefix = configuration.baseUrl.substring(1),
+        i = 0
+      ;
+      for(i = 0;i < srcFiles.length; i++){
+        if(srcFiles[i].indexOf(badPrefix) === 0){
+          srcFiles[i] = srcFiles[i].replace(badPrefix, '');
+          
+        }
+      }
+
       specFiles = ['<%= [].concat(scripts.specs,scripts.reporters).join("','") %>'];
       helperJasmine = ['<%= (scripts.boot || scripts.start).join("','") %>'];
 
 
-          
+    //console.log('1.Cargando: ', preloadFiles);
     require( preloadFiles, function () {
+      //console.log('2.Cargando: ', specFiles);
       require( specFiles, function () {
+        //console.log('3.1.Cargando: ', helperJasmine);
+        
+        require( helperJasmine, function () {
+          //console.log('5. Todo Cargado: ');
+        });
+        
+        // console.log('3.2.Cargando: ', srcFiles);
         require( srcFiles, function () {
-          require( helperJasmine, function () {
-         
-          });
+          // console.log('6. Sources Cargados: ');
         });
       }); 
     });
