@@ -1,22 +1,24 @@
 {
   "name": "grunt-template-jasmine-requirejs-preloader",
   "version": "0.0.1",
-  "description": "Requirejs + modulesLoader template for grunt-contrib-jasmine",
+  "description": "Requirejs + modulesLoader template for grunt-contrib-jasmine + preload plugins",
   "main": "src/template-jasmine-requirejs.js",
   "scripts": {
     "test": "grunt test"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cloudchen/grunt-template-jasmine-requirejs"
+    "url": "https://github.com/juanchaur/grunt-template-jasmine-requirejs-preload"
   },
   "keywords": [
     "grunt",
     "template",
     "requirejs",
     "jasmine",
-    "test"
+    "test",
+    "preload plugins"
   ],
+  "forked": "Forked by Juan Chaur"
   "author": "Cloud Chen <cloudcmh@gmail.com>",
   "contributors": [
     "Gunnar A. Reinseth <gar@prepost.net>",
