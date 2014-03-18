@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Jasmine Spec Runner</title>
+  <title>Jasmine preload - Spec Runner</title>
 
   <% css.forEach(function(style){ %>
   <link rel="stylesheet" type="text/css" href="<%= style %>">
@@ -13,7 +13,7 @@
     require.onError = function(error) {
       var message = error.requireType + ': ';
       if (error.requireType === 'scripterror' || error.requireType === 'notloaded' && error.requireModules) {
-        message += 'Illegal path or script error: ' + '[\'' + error.requireModules.join("', '") + '\']';
+        message += '[SpecRunner.html] >> Illegal path or script error: ' + '[\'' + error.requireModules.join("', '") + '\']';
       } else {
         message += error.message;
       }
@@ -28,6 +28,8 @@
   <% }) %>
   <% }; %>
 
+</head>
+<body>
   <script>
     <% if (options.mainRequireConfig) { %>
       require.config(<%= serializeRequireConfig(options.mainRequireConfig) %>);
@@ -42,7 +44,7 @@
             // capture the arguments and body fo callback function
             options.requireConfig['callback'].toString().replace(/^function\s+\w*\(([^\)]*)\)\s*\{((?:.|[\n\r])*)}/m, function(match, args, body) {
                 var being_recreated_function = [];
-                if (args.length > 0) {
+                if (args.length > 0) {  
                     args = args.split(/,\s*/);
                     being_recreated_function = being_recreated_function.concat(args);
                 }
@@ -61,25 +63,38 @@
     %>
       require.config(<%= serializeRequireConfig(options.requireConfig) %>);
     <% } %>
-  </script>
-
-  <script>
+  var preLoad = [];
     function launchTest() {
-    require([
-      <% scripts.src.forEach(function(script, i){ %>
-        <% script = script.replace(/\\/g, '/') // replace all backward slashes to forward slash %>
-        '<%= script %>' <%= i < scripts.src.length-1 ? ',' : '' %>
-      <% }) %>
-    ],
-    function(){
-      require(['<%= [].concat(scripts.specs,scripts.reporters).join("','") %>'], function(){
-        require(['<%= (scripts.boot || scripts.start).join("','") %>'], function(){
-          // good to go! Our tests should already be running.
-        })
-      })
-    }
-    )
+      var preloadFiles,
+          srcFiles,
+          specFiles,
+          helperJasmine;
+
+      preloadFiles = ['<%= [].concat(scripts.preloads).join("','") %>'];
+
+      srcFiles = [
+        <% scripts.src.forEach(function(script, i){ %>
+          <% script = script.replace(/\\/g, '/') // replace all backward slashes to forward slash %>
+          '<%= script %>' <%= i < scripts.src.length-1 ? ',' : '' %>
+        <% }) %>
+      ];
+
+      specFiles = ['<%= [].concat(scripts.specs,scripts.reporters).join("','") %>'];
+      helperJasmine = ['<%= (scripts.boot || scripts.start).join("','") %>'];
+
+
+          
+    require( preloadFiles, function () {
+      require( specFiles, function () {
+        require( srcFiles, function () {
+          require( helperJasmine, function () {
+         
+          });
+        });
+      }); 
+    });
   }
+  
   </script>
 
   <% if (!hasCallback) { %>
@@ -87,7 +102,7 @@
   launchTest();
   </script>
   <% } %>
-</head>
-<body>
+
+
 </body>
 </html>
