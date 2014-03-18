@@ -69,8 +69,13 @@
           srcFiles,
           specFiles,
           helperJasmine;
-
-      preloadFiles = ['<%= [].concat(scripts.preloads).join("','") %>'];
+      console.dir( scripts.preloads);
+      preloadFiles = [
+      <% scripts.preloads.forEach(function(script, i){ %>
+          <% script = script.replace(/\\/g, '/') // replace all backward slashes to forward slash %>
+          '<%= script %>' <%= i < scripts.src.length-1 ? ',' : '' %>
+        <% }) %>
+     ];
 
       srcFiles = [
         <% scripts.src.forEach(function(script, i){ %>
