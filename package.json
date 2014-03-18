@@ -1,6 +1,6 @@
 {
   "name": "grunt-template-jasmine-requirejs-preloader",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Requirejs + modulesLoader template for grunt-contrib-jasmine + preload plugins",
   "main": "src/template-jasmine-requirejs.js",
   "scripts": {
