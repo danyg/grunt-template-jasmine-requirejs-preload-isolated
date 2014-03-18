@@ -1,3 +1,43 @@
+RequireJS template for Jasmine unit tests + moduleLoader plugin [![Build Status](https://travis-ci.org/cloudchen/grunt-template-jasmine-requirejs.png?branch=master)](https://travis-ci.org/cloudchen/grunt-template-jasmine-requirejs)
+-----------------------------------------
+
+## Installation
+```
+npm install grunt-template-jasmine-requirejs-preloader
+```
+
+
+## Sample usage
+
+```js
+// Example configuration using a single requireJS config file
+grunt.initConfig({
+  connect: {
+    test : {
+      port : 8000
+    }
+  },
+  jasmine: {
+    taskName: {
+      src: 'src/**/*.js',
+      options: {
+        specs: 'spec/*Spec.js',
+        helpers: 'spec/*Helper.js',
+        keepRunner: true,
+        host: 'http://127.0.0.1:8000/',
+        template: require('grunt-template-jasmine-requirejs-preloader'),
+        templateOptions: {
+          requireConfig: requireConfig,
+          preloads: ['modulesLoader']
+        }
+      }
+    }
+  }
+});
+```
+
+
+
 RequireJS template for Jasmine unit tests [![Build Status](https://travis-ci.org/cloudchen/grunt-template-jasmine-requirejs.png?branch=master)](https://travis-ci.org/cloudchen/grunt-template-jasmine-requirejs)
 -----------------------------------------
 
