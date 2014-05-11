@@ -61,7 +61,7 @@ function moveRequireJs(grunt, task, versionOrPath) {
 		}
 	}
 	task.copyTempFile(pathToRequireJS, 'require.js');
-	task.copyTempFile(__dirname + '/../vendor/isolatedRunner.js', 'isolatedRunner.js');
+	task.copyTempFile(__dirname + '/../vendor/jasmine-alone.js', 'jasmine-alone.js');
 }
 
 exports.process = function(grunt, task, context) {
@@ -69,7 +69,7 @@ exports.process = function(grunt, task, context) {
 	var version = context.options.version;
 
 	if (!context.options.preloads || undefined !== context.options.preloads.length) {
-		context.options.preloads.unshift(context.temp + '/isolatedRunner.js');
+		context.options.preloads.unshift(context.temp + '/jasmine-alone.js');
 	}
 	// find the latest version if none given
 	if (!version) {
