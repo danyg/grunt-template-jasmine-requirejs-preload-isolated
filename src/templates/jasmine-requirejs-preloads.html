@@ -1,126 +1,128 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Jasmine preloading plugins - Spec Runner</title>
+	<head>
+		<meta charset="utf-8">
+		<title>Jasmine preloading plugins - Spec Runner</title>
 
-  <% css.forEach(function(style){ %>
-  <link rel="stylesheet" type="text/css" href="<%= style %>">
-  <% }) %>
+		<% css.forEach(function(style){ %>
+		<link rel="stylesheet" type="text/css" href="<%= style %>">
+		<% }) %>
 
-  <script src="<%= temp %>/require.js"></script>
-  <script>
-    require.onError = function(error) {
-      var message = error.requireType + ': ';
-      if (error.requireType === 'scripterror' || error.requireType === 'notloaded' && error.requireModules) {
-        message += '[SpecRunner.html] >> Illegal path or script error: ' + '[\'' + error.requireModules.join("', '") + '\']';
-      } else {
-        message += error.message;
-      }
+		<script type="text/javascript" src="<%= temp %>/require.js"></script>
+		<script type="text/javascript">
+			require.onError = function(error) {
+				var message = error.requireType + ': ';
+				if (error.requireType === 'scripterror' || error.requireType === 'notloaded' && error.requireModules) {
+					message += '[SpecRunner.html] >> Illegal path or script error: ' + '[\'' + error.requireModules.join("', '") + '\']';
+				} else {
+					message += error.message;
+				}
 
-      throw Error(message);
-    };
-  </script>
+				throw Error(message);
+			};
+		</script>
 
-  <% with (scripts) { %>
-  <% [].concat(jasmine, vendor, helpers).forEach(function(script){ %>
-  <script src="<%= script %>"></script>
-  <% }) %>
-  <% }; %>
+		<% with (scripts) { %>
+		<% [].concat(jasmine, vendor, helpers).forEach(function(script){ %>
+		<script type="text/javascript" src="<%= script %>"></script>
+		<% }) %>
+		<% }; %>
 
-</head>
-<body>
-  <script>
-    <% if (options.mainRequireConfig) { %>
-      require.config(<%= serializeRequireConfig(options.mainRequireConfig) %>);
-    <% } %>
+	</head>
+	<body>
+		<script type="text/javascript">
+			<% if (options.mainRequireConfig) { %>
+				require.config(<%= serializeRequireConfig(options.mainRequireConfig) %>);
+			<% } %>
 
-    <% var hasCallback = false;
-       if (options.requireConfig) {
-        if ('callback' in options.requireConfig) {
-            /* Inserting launchTest() as the last statement in callback function
-               to make sure spec is called after all initialization stuffs */
+			<% var hasCallback = false;
+				 if (options.requireConfig) {
+					if ('callback' in options.requireConfig) {
+							/* Inserting launchTest() as the last statement in callback function
+								 to make sure spec is called after all initialization stuffs */
 
-            // capture the arguments and body fo callback function
-            options.requireConfig['callback'].toString().replace(/^function\s+\w*\(([^\)]*)\)\s*\{((?:.|[\n\r])*)}/m, function(match, args, body) {
-                var being_recreated_function = [];
-                if (args.length > 0) {  
-                    args = args.split(/,\s*/);
-                    being_recreated_function = being_recreated_function.concat(args);
-                }
-                // append launchTest() to the end of function body
-                body += '\nlaunchTest();';
+							// capture the arguments and body fo callback function
+							options.requireConfig['callback'].toString().replace(/^function\s+\w*\(([^\)]*)\)\s*\{((?:.|[\n\r])*)}/m, function(match, args, body) {
+									var being_recreated_function = [];
+									if (args.length > 0) {	
+											args = args.split(/,\s*/);
+											being_recreated_function = being_recreated_function.concat(args);
+									}
+									// append launchTest() to the end of function body
+									body += '\nlaunchTest();';
 
-                being_recreated_function = being_recreated_function.concat(body);
+									being_recreated_function = being_recreated_function.concat(body);
 
-                // recreate an anonymouse function with modified body
-                // re-assign callback property by just created new function
-                // (return value dosen't matter)
-                options.requireConfig['callback'] = Function.apply(this, being_recreated_function);
-                hasCallback = true;
-            });
-        }
-    %>
-      var configuration = <%= serializeRequireConfig(options.requireConfig) %>;
-      var req = require.config(configuration);
-      console.log('\n----------------------------------------------------------------------------------');
-      console.log(window.location.toString());
-      console.log('----------------------------------------------------------------------------------\n');
-      // console.log('the url is: ', req.toUrl('modulesLoader'));
-
-
-    <% } %>
-  var preLoad = [];
-    function launchTest() {
-      var preloadFiles,
-          srcFiles,
-          specFiles,
-          helperJasmine;
-
-     preloadFiles = ['<%= [].concat(options.preloads).join("','") %>'];
-
-      srcFiles = [
-        <% scripts.src.forEach(function(script, i){ %>
-          <% script = script.replace(/\\/g, '/') // replace all backward slashes to forward slash %>
-          '<%= script %>' <%= i < scripts.src.length-1 ? ',' : '' %>
-        <% }) %>
-      ];
-
-      var badPrefix = configuration.baseUrl.substring(1),
-        i = 0
-      ;
-      for(i = 0;i < srcFiles.length; i++){
-        if(srcFiles[i].indexOf(badPrefix) === 0){
-          srcFiles[i] = srcFiles[i].replace(badPrefix, '');
-          
-        }
-      }
-
-      specFiles = ['<%= [].concat(scripts.specs,scripts.reporters).join("','") %>'];
-      helperJasmine = ['<%= (scripts.boot || scripts.start).join("','") %>'];
+									// recreate an anonymouse function with modified body
+									// re-assign callback property by just created new function
+									// (return value dosen't matter)
+									options.requireConfig['callback'] = Function.apply(this, being_recreated_function);
+									hasCallback = true;
+							});
+					}
+			%>
+				var configuration = <%= serializeRequireConfig(options.requireConfig) %>;
+				var req = require.config(configuration);
+				console.log('\n----------------------------------------------------------------------------------');
+				console.log(window.location.toString());
+				console.log('----------------------------------------------------------------------------------\n');
+				// console.log('the url is: ', req.toUrl('modulesLoader'));
 
 
-    require( preloadFiles, function () {
-      require( specFiles, function () {
-        
-        require( helperJasmine, function () {
-        });
-        
-        require( srcFiles, function () {
-        });
+			<% } %>
+		function launchTest() {
+			var preloadFiles,
+				srcFiles,
+				specFiles,
+				helperJasmine
+			;
 
-      }); 
-    });
-  }
-  
-  </script>
+			preloadFiles = ['<%= [].concat(options.preloads).join("','") %>'];
 
-  <% if (!hasCallback) { %>
-  <script>
-  launchTest();
-  </script>
-  <% } %>
+			srcFiles = [
+				<% scripts.src.forEach(function(script, i){ %>
+					<% script = script.replace(/\\/g, '/') // replace all backward slashes to forward slash %>
+					'<%= script %>' <%= i < scripts.src.length-1 ? ',' : '' %>
+				<% }) %>
+			];
+
+			var badPrefix = configuration.baseUrl.substring(1),
+				i = 0
+			;
+			for(i = 0;i < srcFiles.length; i++){
+				if(srcFiles[i].indexOf(badPrefix) === 0){
+					srcFiles[i] = srcFiles[i].replace(badPrefix, '');
+
+				}
+			}
+
+			specFiles = ['<%= [].concat(scripts.specs).join("','") %>'];
+			var reportersFiles = ['<%= [].concat(scripts.reporters).join("','") %>'];
+			helperJasmine = ['<%= (scripts.boot || scripts.start).join("','") %>'];
+
+			require(preloadFiles, function() {
+				isolatedRunner.setSpecs(specFiles);
+				isolatedRunner.run();
+				require(reportersFiles, function() {
+				});
+
+				require(helperJasmine, function() {
+				});
+
+				require(srcFiles, function() {
+				});
+			});
+
+		}
+
+		</script>
+
+		<% if (!hasCallback) { %>
+		<script type="text/javascript">
+		launchTest();
+		</script>
+		<% } %>
 
 
-</body>
+	</body>
 </html>
